@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Federated Learning Research Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(100, 100, 100, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 100, 100, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 100, 100, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-network-wired text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">FedLearn Research</span>
+                    <span class="hidden sm:inline-block text-xs px-2 py-0.5 ml-2 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-medium">v2.4 Engine</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-1 text-sm font-medium">
+                <button onclick="switchTab('overview')" class="nav-btn px-3 py-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 text-indigo-600 dark:text-indigo-400" data-target="overview">Overview</button>
+                <button onclick="switchTab('simulator')" class="nav-btn px-3 py-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" data-target="simulator">Simulator</button>
+                <button onclick="switchTab('algorithms')" class="nav-btn px-3 py-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" data-target="algorithms">Algorithms</button>
+                <button onclick="switchTab('security')" class="nav-btn px-3 py-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" data-target="security">Security & Privacy</button>
+                <button onclick="switchTab('applications')" class="nav-btn px-3 py-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" data-target="applications">Applications</button>
+                <button onclick="switchTab('papers')" class="nav-btn px-3 py-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" data-target="papers">Literature</button>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <button id="themeToggle" class="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <i class="fa-solid fa-moon dark:hidden text-slate-600"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+                </button>
+                <button onclick="switchTab('simulator')" class="hidden sm:inline-flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-play text-xs"></i>
+                    <span>Launch Sim</span>
+                </button>
+                <button onclick="toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                    <i class="fa-solid fa-bars text-slate-600 dark:text-slate-300"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Dropdown -->
+        <div id="mobileMenu" class="hidden md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 pt-2 pb-4 space-y-1">
+            <button onclick="switchTab('overview'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium">Overview</button>
+            <button onclick="switchTab('simulator'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium">Simulator</button>
+            <button onclick="switchTab('algorithms'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium">Algorithms</button>
+            <button onclick="switchTab('security'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium">Security & Privacy</button>
+            <button onclick="switchTab('applications'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium">Applications</button>
+            <button onclick="switchTab('papers'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium">Literature</button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- TAB 1: OVERVIEW -->
+        <section id="tab-overview" class="tab-content space-y-12">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-slate-900 to-violet-950 text-white p-8 sm:p-12 shadow-2xl border border-indigo-500/20">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-2xl space-y-6">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Decentralized AI Architecture</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                        Federated Learning: Collaborative AI Without Data Sharing
+                    </h1>
+                    <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+                        Train high-performance machine learning models across decentralized edge devices or silos holding local data samples, without ever exchanging raw datasets. Preserving privacy by design.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="switchTab('simulator')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+                            <span>Explore Interactive Sim</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                        <button onclick="switchTab('papers')" class="bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-700 font-medium px-6 py-3 rounded-xl transition-all">
+                            View Research Papers
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Pillars Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-500/50 transition-all space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Privacy by Design</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                        Raw user data never leaves the local device or secure server silo. Only encrypted model updates (gradients/weights) are transmitted.
+                    </p>
+                </div>
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-500/50 transition-all space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Distributed Computation</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                        Leverage idle compute power across millions of edge devices, smartphones, or hospitals to train models collaboratively.
+                    </p>
+                </div>
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-indigo-500/50 transition-all space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Non-IID Robustness</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                        Advanced algorithms like FedProx and FedDyn tackle statistical heterogeneity where local data distributions vary wildly across nodes.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Architecture Comparison Section -->
+            <div class="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold">Centralized vs. Federated Learning</h2>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Understanding the paradigm shift in machine learning infrastructure.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                    <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                        <div class="flex items-center space-x-3 text-red-500 font-semibold">
+                            <i class="fa-solid fa-server"></i>
+                            <span>Traditional Centralized Training</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start space-x-2"><i class="fa-solid fa-xmark text-red-500 mt-1"></i><span>Requires centralizing all raw data in one database/cloud.</span></li>
+                            <li class="flex items-start space-x-2"><i class="fa-solid fa-xmark text-red-500 mt-1"></i><span>High regulatory risk (GDPR, HIPAA compliance hurdles).</span></li>
+                            <li class="flex items-start space-x-2"><i class="fa-solid fa-xmark text-red-500 mt-1"></i><span>Vulnerable to single-point data breaches and leaks.</span></li>
+                        </ul>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/50 space-y-4">
+                        <div class="flex items-center space-x-3 text-indigo-600 dark:text-indigo-400 font-semibold">
+                            <i class="fa-solid fa-circle-nodes"></i>
+                            <span>Federated Learning Paradigm</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start space-x-2"><i class="fa-solid fa-check text-indigo-600 dark:text-indigo-400 mt-1"></i><span>Data remains stationary on local client devices or nodes.</span></li>
+                            <li class="flex items-start space-x-2"><i class="fa-solid fa-check text-indigo-600 dark:text-indigo-400 mt-1"></i><span>Only parameterized model updates (weights) are shared.</span></li>
+                            <li class="flex items-start space-x-2"><i class="fa-solid fa-check text-indigo-600 dark:text-indigo-400 mt-1"></i><span>Compliant with strict data privacy laws natively.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: SIMULATOR -->
+        <section id="tab-simulator" class="tab-content hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Interactive Federated Training Simulator</h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Simulate the FedAvg workflow across 4 decentralized client nodes and a central aggregator.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="simStartBtn" onclick="startSimulation()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-md shadow-indigo-500/20 flex items-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Run Epoch Step</span>
+                    </button>
+                    <button onclick="resetSimulation()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition-all">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Simulation Dashboard Canvas / Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Visual Map & Status -->
+                <div class="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div class="space-y-1">
+                            <span class="text-xs uppercase font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">Current Status</span>
+                            <h4 id="simStatusText" class="text-lg font-semibold">Ready to initialize round 1</h4>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-500">Global Epoch</span>
+                            <div id="simEpoch" class="text-2xl font-bold font-mono">0 / 10</div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Nodes Layout -->
+                    <div class="relative py-12 flex flex-col items-center justify-center min-h-[320px]">
+                        <!-- Central Server -->
+                        <div id="serverNode" class="z-10 w-28 h-28 rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 flex flex-col items-center justify-center p-3 text-center transition-all duration-500">
+                            <i class="fa-solid fa-server text-2xl mb-1"></i>
+                            <span class="text-xs font-bold">Aggregator</span>
+                            <span id="globalAcc" class="text-[10px] text-indigo-200">Acc: 50.0%</span>
+                        </div>
+
+                        <!-- Connection SVG Lines -->
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-slate-300 dark:stroke-slate-700 stroke-2 stroke-dash" style="z-index: 1;">
+                            <line x1="50%" y1="35%" x2="20%" y2="75%" stroke-dasharray="4" />
+                            <line x1="50%" y1="35%" x2="40%" y2="75%" stroke-dasharray="4" />
+                            <line x1="50%" y1="35%" x2="60%" y2="75%" stroke-dasharray="4" />
+                            <line x1="50%" y1="35%" x2="80%" y2="75%" stroke-dasharray="4" />
+                        </svg>
+
+                        <!-- Clients Row -->
+                        <div class="grid grid-cols-4 gap-4 sm:gap-8 w-full max-w-lg mt-16 z-10">
+                            <!-- Client 1 -->
+                            <div id="client-0" class="client-box p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center transition-all duration-300">
+                                <i class="fa-solid fa-hospital text-indigo-500 text-lg mb-1"></i>
+                                <div class="text-xs font-bold truncate">Hospital A</div>
+                                <div class="text-[10px] text-slate-500 dark:text-slate-400">1.2k samples</div>
+                                <div class="client-state text-[9px] font-mono mt-1 text-slate-400">Idle</div>
+                            </div>
+                            <!-- Client 2 -->
+                            <div id="client-1" class="client-box p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center transition-all duration-300">
+                                <i class="fa-solid fa-mobile-screen text-indigo-500 text-lg mb-1"></i>
+                                <div class="text-xs font-bold truncate">Mobile Fleet</div>
+                                <div class="text-[10px] text-slate-500 dark:text-slate-400">4.5k samples</div>
+                                <div class="client-state text-[9px] font-mono mt-1 text-slate-400">Idle</div>
+                            </div>
+                            <!-- Client 3 -->
+                            <div id="client-2" class="client-box p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center transition-all duration-300">
+                                <i class="fa-solid fa-building-columns text-indigo-500 text-lg mb-1"></i>
+                                <div class="text-xs font-bold truncate">Bank Node</div>
+                                <div class="text-[10px] text-slate-500 dark:text-slate-400">2.1k samples</div>
+                                <div class="client-state text-[9px] font-mono mt-1 text-slate-400">Idle</div>
+                            </div>
+                            <!-- Client 4 -->
+                            <div id="client-3" class="client-box p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center transition-all duration-300">
+                                <i class="fa-solid fa-microchip text-indigo-500 text-lg mb-1"></i>
+                                <div class="text-xs font-bold truncate">IoT Edge</div>
+                                <div class="text-[10px] text-slate-500 dark:text-slate-400">850 samples</div>
+                                <div class="client-state text-[9px] font-mono mt-1 text-slate-400">Idle</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Stats -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <div>
+                            <span class="text-xs text-slate-500">Aggregation Algo</span>
+                            <div class="font-semibold text-sm">FedAvg (McMahan et al.)</div>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500">Active Clients</span>
+                            <div class="font-semibold text-sm">4 / 4 Nodes</div>
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <span class="text-xs text-slate-500">Loss Metric</span>
+                            <div id="lossMetric" class="font-semibold text-sm font-mono">0.6931</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Logs & Config -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-lg">Hyperparameters</h3>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1">Aggregation Strategy</label>
+                                <select id="simAlgoSelect" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                                    <option value="fedavg">FedAvg (Standard Weighted)</option>
+                                    <option value="fedprox">FedProx (Proximal Term)</option>
+                                    <option value="fedsgd">FedSGD (Full Gradient)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1">Local Epochs per Round (<span id="valEpochs">3</span>)</label>
+                                <input type="range" min="1" max="10" value="3" id="rangeEpochs" oninput="document.getElementById('valEpochs').innerText = this.value" class="w-full accent-indigo-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1">Client Fraction (<span id="valFrac">100</span>%)</label>
+                                <input type="range" min="25" max="100" step="25" value="100" id="rangeFrac" oninput="document.getElementById('valFrac').innerText = this.value" class="w-full accent-indigo-600">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Log Console -->
+                    <div class="flex-1 flex flex-col space-y-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Execution Log</span>
+                        <div id="simLog" class="flex-1 bg-slate-950 text-indigo-400 code-font text-xs p-3 rounded-2xl h-48 overflow-y-auto space-y-1">
+                            <div>[System] Initialized Federated Server.</div>
+                            <div>[System] Waiting to start training rounds...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: ALGORITHMS -->
+        <section id="tab-algorithms" class="tab-content hidden space-y-8">
+            <div>
+                <h2 class="text-2xl font-bold">Federated Optimization Algorithms</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Comparing foundational mathematical formulations from landmark research literature.</p>
+            </div>
+
+            <!-- Algorithm Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- FedSGD -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold">FedSGD</h3>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 font-mono font-medium">Communication Heavy</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">
+                        Clients compute gradients over their local datasets using a single batch and send them to the central server for averaging.
+                    </p>
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 font-mono text-xs text-indigo-600 dark:text-indigo-400 overflow-x-auto">
+                        w_{t+1} = w_t - \eta \sum_{k=1K} \frac{n_k}{n} g_k
+                    </div>
+                    <div class="text-xs text-slate-500 space-y-1">
+                        <div><strong>Key Paper:</strong> McMahan et al., 2016</div>
+                        <div><strong>Limitation:</strong> High communication cost per update iteration.</div>
+                    </div>
+                </div>
+
+                <!-- FedAvg -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-indigo-500/50 shadow-sm space-y-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl">GOLD STANDARD</div>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold">FedAvg (Federated Averaging)</h3>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-mono font-medium">Multi-step SGD</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">
+                        Allows clients to perform multiple local epochs of SGD before sending updated weights to the aggregator, drastically reducing communication rounds.
+                    </p>
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 font-mono text-xs text-indigo-600 dark:text-indigo-400 overflow-x-auto">
+                        w_{t+1} = \sum_{k=1}^K \frac{n_k}{n} w_t^{k}
+                    </div>
+                    <div class="text-xs text-slate-500 space-y-1">
+                        <div><strong>Key Paper:</strong> <em>Communication-Efficient Learning of Deep Networks from Decentralized Data</em> (AISTATS 2017)</div>
+                        <div><strong>Advantage:</strong> Fast convergence on IID and moderately non-IID data.</div>
+                    </div>
+                </div>
+
+                <!-- FedProx -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold">FedProx</h3>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-mono font-medium">Non-IID Robust</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">
+                        Adds a proximal term to the local objective function to restrict local updates from drifting too far from the global model, handling severe statistical heterogeneity.
+                    </p>
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 font-mono text-xs text-emerald-600 dark:text-emerald-400 overflow-x-auto">
+                        h_k(w; w_t) = F_k(w) + \frac{\mu}{2} ||w - w_t||^2
+                    </div>
+                    <div class="text-xs text-slate-500 space-y-1">
+                        <div><strong>Key Paper:</strong> Li et al., 2018 (MLSys 2020)</div>
+                        <div><strong>Advantage:</strong> Guarantees convergence on highly skewed non-IID data.</div>
+                    </div>
+                </div>
+
+                <!-- FedDyn -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold">FedDyn</h3>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400 font-mono font-medium">Dynamic Regularization</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">
+                        Employs dynamic regularizers matching local objectives to the global objective, eliminating client drift and aligning stationary points.
+                    </p>
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 font-mono text-xs text-violet-600 dark:text-violet-400 overflow-x-auto">
+                        F_k^{dyn}(w; w_t, \alpha) = F_k(w) - \langle \nabla F_k(w_t) - \alpha h_t, w \rangle + \frac{\alpha}{2} ||w||^2
+                    </div>
+                    <div class="text-xs text-slate-500 space-y-1">
+                        <div><strong>Key Paper:</strong> Acar et al., 2021 (ICLR)</div>
+                        <div><strong>Advantage:</strong> Asymptotic exactness for heterogeneous objectives.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: SECURITY & PRIVACY -->
+        <section id="tab-security" class="tab-content hidden space-y-8">
+            <div>
+                <h2 class="text-2xl font-bold">Security, Cryptography & Privacy Protections</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Defending decentralized networks against membership inference, model poisoning, and data reconstruction attacks.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Differential Privacy -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-fingerprint"></i>
+                    </div>
+                    <h3 class="text-lg font-bold">Differential Privacy (DP)</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">
+                        Injecting calibrated Gaussian or Laplacian noise directly into local model updates before transmission, ensuring individual training samples cannot be reverse-engineered.
+                    </p>
+                    <div class="pt-2 text-xs text-slate-500">
+                        <strong>Guarantee:</strong> $(\epsilon, \delta)$-indistinguishability.
+                    </div>
+                </div>
+
+                <!-- Secure Aggregation -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <h3 class="text-lg font-bold">Secure Aggregation (SecAgg)</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">
+                        Uses cryptographic secret sharing protocols so that the central server can compute the sum of client updates without ever inspecting individual client vectors.
+                    </p>
+                    <div class="pt-2 text-xs text-slate-500">
+                        <strong>Protocol:</strong> Bonawitz et al. (CCS 2017)
+                    </div>
+                </div>
+
+                <!-- Byzantine Robustness -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-shield-virus"></i>
+                    </div>
+                    <h3 class="text-lg font-bold">Byzantine Defenses</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">
+                        Defending against malicious clients injecting poisoned model weights to sabotage global accuracy. Employs Krum, Trimmed Mean, and coordinate-wise median aggregation.
+                    </p>
+                    <div class="pt-2 text-xs text-slate-500">
+                        <strong>Defense:</strong> Robust statistical filtering.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: APPLICATIONS -->
+        <section id="tab-applications" class="tab-content hidden space-y-8">
+            <div>
+                <h2 class="text-2xl font-bold">Real-World Domain Applications</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Where federated learning solves critical data privacy and regulatory barriers.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Healthcare -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">Healthcare & Genomics</h3>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                        Hospitals train diagnostic models on sensitive patient EHRs and MRI scans collaboratively without transferring records across institutional boundaries, complying fully with HIPAA and GDPR.
+                    </p>
+                </div>
+
+                <!-- Finance -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid fa-vault"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">Banking & Fraud Detection</h3>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                        Multi-institutional fraud detection networks where international banks pool pattern recognition capabilities without sharing proprietary transaction records or customer PII.
+                    </p>
+                </div>
+
+                <!-- IoT -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                            <i class="fa-solid fa-mobile-retro"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">Edge Mobile & IoT Fleet</h3>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                        Smartphones and autonomous vehicles improve next-word prediction models and edge perception locally while keeping personal messaging logs and sensor feeds private.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: RESEARCH PAPERS -->
+        <section id="tab-papers" class="tab-content hidden space-y-8">
+            <div>
+                <h2 class="text-2xl font-bold">Seminal Research Literature</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">Core academic papers that shaped the field of Federated Learning.</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Paper 1 -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-2 max-w-3xl">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-mono font-medium">AISTATS 2017</span>
+                            <span class="text-xs text-slate-500">McMahan et al. (Google)</span>
+                        </div>
+                        <h4 class="text-lg font-bold">Communication-Efficient Learning of Deep Networks from Decentralized Data</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            The foundational paper introducing Federated Averaging (FedAvg), demonstrating that deep neural networks can be trained over decentralized data silos using iterative model weight averaging.
+                        </p>
+                    </div>
+                    <a href="https://arxiv.org/abs/1602.05629" target="_blank" class="inline-flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shrink-0">
+                        <span>Read arXiv</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+
+                <!-- Paper 2 -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-2 max-w-3xl">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-mono font-medium">MLSys 2020</span>
+                            <span class="text-xs text-slate-500">Li et al. (Carnegie Mellon University)</span>
+                        </div>
+                        <h4 class="text-lg font-bold">Federated Optimization in Heterogeneous Networks (FedProx)</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Addresses statistical and systems heterogeneity across edge devices by introducing a proximal term to stabilize local training updates on non-IID data.
+                        </p>
+                    </div>
+                    <a href="https://arxiv.org/abs/1812.06127" target="_blank" class="inline-flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shrink-0">
+                        <span>Read arXiv</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+
+                <!-- Paper 3 -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-2 max-w-3xl">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400 font-mono font-medium">CCS 2017</span>
+                            <span class="text-xs text-slate-500">Bonawitz et al. (Google)</span>
+                        </div>
+                        <h4 class="text-lg font-bold">Practical Secure Aggregation for Privacy-Preserving Machine Learning</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Proposes a cryptographic secure aggregation protocol allowing the server to compute the sum of high-dimensional client gradient vectors securely without inspecting individual updates.
+                        </p>
+                    </div>
+                    <a href="https://arxiv.org/abs/1711.02587" target="_blank" class="inline-flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shrink-0">
+                        <span>Read arXiv</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-network-wired text-indigo-600"></i>
+                <span class="text-sm font-bold">Federated Learning Research Portal</span>
+            </div>
+            <p class="text-xs text-slate-500">Built for researchers, engineers, and machine learning practitioners.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab Switcher logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-indigo-600', 'dark:text-indigo-400', 'font-semibold');
+                btn.classList.add('text-slate-600', 'dark:text-slate-300');
+                if(btn.dataset.target === tabId) {
+                    btn.classList.add('text-indigo-600', 'dark:text-indigo-400', 'font-semibold');
+                    btn.classList.remove('text-slate-600', 'dark:text-slate-300');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Dark/Light Theme Toggle
+        const themeToggleBtn = document.getElementById('themeToggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Simulator State & Logic
+        let currentEpoch = 0;
+        const maxEpochs = 10;
+        let isSimulating = false;
+
+        function logMessage(msg) {
+            const logBox = document.getElementById('simLog');
+            const div = document.createElement('div');
+            div.textContent = msg;
+            logBox.appendChild(div);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function startSimulation() {
+            if (isSimulating) return;
+            if (currentEpoch >= maxEpochs) {
+                resetSimulation();
+            }
+            isSimulating = true;
+            document.getElementById('simStartBtn').disabled = true;
+            document.getElementById('simStartBtn').classList.add('opacity-50');
+
+            runEpochStep();
+        }
+
+        function runEpochStep() {
+            currentEpoch++;
+            document.getElementById('simEpoch').textContent = currentEpoch + ' / ' + maxEpochs;
+            document.getElementById('simStatusText').textContent = `Running Epoch ${currentEpoch}: Local Training & Aggregation`;
+
+            logMessage(`[Epoch ${currentEpoch}] Broadcasting global weights to clients...`);
+
+            // Animate clients training
+            for(let i=0; i<4; i++) {
+                const clientBox = document.getElementById(`client-${i}`);
+                const stateBox = clientBox.querySelector('.client-state');
+                clientBox.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-950/30');
+                stateBox.textContent = 'Training...';
+            }
+
+            setTimeout(() => {
+                logMessage(`[Epoch ${currentEpoch}] Clients completed local training. Uploading updates...`);
+                for(let i=0; i<4; i++) {
+                    const clientBox = document.getElementById(`client-${i}`);
+                    const stateBox = clientBox.querySelector('.client-state');
+                    stateBox.textContent = 'Updated Sent';
+                }
+            }, 1200);
+
+            setTimeout(() => {
+                logMessage(`[Epoch ${currentEpoch}] Aggregating client updates via FedAvg...`);
+                const serverNode = document.getElementById('serverNode');
+                serverNode.classList.add('scale-105', 'bg-violet-600');
+                setTimeout(() => serverNode.classList.remove('scale-105', 'bg-violet-600'), 400);
+
+                const acc = Math.min(98.5, (50 + currentEpoch * 4.8)).toFixed(1);
+                const loss = Math.max(0.05, (0.6931 - currentEpoch * 0.065)).toFixed(4);
+
+                document.getElementById('globalAcc').textContent = `Acc: ${acc}%`;
+                document.getElementById('lossMetric').textContent = loss;
+
+                logMessage(`[Epoch ${currentEpoch}] Aggregation complete. Global Model Accuracy: ${acc}%, Loss: ${loss}`);
+
+                // Reset client states
+                for(let i=0; i<4; i++) {
+                    const clientBox = document.getElementById(`client-${i}`);
+                    const stateBox = clientBox.querySelector('.client-state');
+                    clientBox.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-950/30');
+                    stateBox.textContent = 'Idle';
+                }
+
+                isSimulating = false;
+                document.getElementById('simStartBtn').disabled = false;
+                document.getElementById('simStartBtn').classList.remove('opacity-50');
+
+                if(currentEpoch >= maxEpochs) {
+                    document.getElementById('simStatusText').textContent = 'Training complete! Model converged successfully.';
+                    logMessage('[System] Federated training session finished successfully.');
+                    document.getElementById('simStartBtn').innerHTML = '<i class="fa-solid fa-rotate-right"></i> <span>Restart Sim</span>';
+                } else {
+                    document.getElementById('simStartBtn').innerHTML = '<i class="fa-solid fa-play"></i> <span>Run Next Epoch</span>';
+                }
+            }, 2500);
+        }
+
+        function resetSimulation() {
+            currentEpoch = 0;
+            isSimulating = false;
+            document.getElementById('simEpoch').textContent = '0 / 10';
+            document.getElementById('simStatusText').textContent = 'Ready to initialize round 1';
+            document.getElementById('globalAcc').textContent = 'Acc: 50.0%';
+            document.getElementById('lossMetric').textContent = '0.6931';
+            document.getElementById('simStartBtn').disabled = false;
+            document.getElementById('simStartBtn').classList.remove('opacity-50');
+            document.getElementById('simStartBtn').innerHTML = '<i class="fa-solid fa-play"></i> <span>Run Epoch Step</span>';
+            document.getElementById('simLog').innerHTML = '<div>[System] Simulator reset. Ready for new run.</div>';
+        }
+    </script>
+</body>
+</html>
