@@ -30,11 +30,11 @@ Because this project is built as a self-contained, single-file web application u
 
 1. Clone or download this repository to your local machine:
    ```bash
-   git clone https://github.com/your-username/federated-learning-research-portal.git
+   git clone https://github.com/diksha1829/Federated-Learning-FL-
    ```
 2. Navigate into the project folder:
    ```bash
-   cd federated-learning-research-portal
+   cd Federated-Learning-FL
    ```
 3. Open `index.html` directly in any modern web browser:
    - **macOS:** `open index.html`
