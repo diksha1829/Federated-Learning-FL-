@@ -34,7 +34,7 @@ Because this project is built as a self-contained, single-file web application u
    ```
 2. Navigate into the project folder:
    ```bash
-   cd Federated-Learning-FL
+   cd Federated-Learning-FL-
    ```
 3. Open `index.html` directly in any modern web browser:
    - **macOS:** `open index.html`
